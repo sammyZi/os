@@ -17,35 +17,46 @@ int main() {
     int time[10], flag1, flag2, i, j, pos;
     int faults = 0;
 
-    printf("Enter number of frames: ");
-    scanf("%d", &no_of_frames);
-
-    printf("Enter number of pages: ");
+    // Input number of pages
+    printf("Enter the number of pages: ");
     scanf("%d", &no_of_pages);
 
-    printf("Enter reference string: ");
+    // Input page numbers one by one
+    printf("\nEnter the page numbers:\n");
     for (i = 0; i < no_of_pages; ++i) {
+        printf("Page %d: ", i + 1);
         scanf("%d", &pages[i]);
     }
 
+    // Input number of frames
+    printf("\nEnter the number of frames: ");
+    scanf("%d", &no_of_frames);
+
+    // Initialize frames to -1 to represent empty frames
     for (i = 0; i < no_of_frames; ++i) {
         frames[i] = -1;
     }
 
+    // Display table header
+    printf("\n+---------------+-------------------------------+\n");
+    printf("| Page Reference|       Frame Contents          |\n");
+    printf("+---------------+-------------------------------+\n");
+
+    // Process each page and manage frames with LRU algorithm
     for (i = 0; i < no_of_pages; ++i) {
         flag1 = flag2 = 0;
         
-        // Check if the page is already in the frame
+        // Check if the page is already in a frame
         for (j = 0; j < no_of_frames; ++j) {
             if (frames[j] == pages[i]) {
                 counter++;
                 time[j] = counter;
-                flag1 = 1; // Page found
+                flag1 = 1; // Page hit
                 break;
             }
         }
 
-        // If page was not found in the frame
+        // If page was not found in the frames (Page Fault)
         if (flag1 == 0) {
             // Check for an empty frame
             for (j = 0; j < no_of_frames; ++j) {
@@ -60,7 +71,7 @@ int main() {
             }
         }
 
-        // If there was no empty frame
+        // If there was no empty frame, replace with LRU page
         if (flag2 == 0) {
             pos = findLRU(time, no_of_frames);
             counter++;
@@ -69,14 +80,21 @@ int main() {
             time[pos] = counter;
         }
 
-        // Print the current frame state
-        printf("\n");
+        // Print the current frame state for the page
+        printf("|      %d        | ", pages[i]);
         for (j = 0; j < no_of_frames; ++j) {
-            printf("%d\t", frames[j]);
+            if (frames[j] != -1) {
+                printf("%d\t", frames[j]);
+            } else {
+                printf("-\t");
+            }
         }
+        printf("|\n");
     }
 
-    printf("\n\nTotal Page Faults = %d\n", faults);
+    // Display total page faults
+    printf("+---------------+-------------------------------+\n");
+    printf("\nTotal Page Faults = %d\n", faults);
+
     return 0;
 }
-
