@@ -1,81 +1,152 @@
-// Banker's Algorithm  
-#include <stdio.h>  
-//5_bankers
-int main()  
-{  
-    // P0, P1, P2, P3, P4 are the Process names here  
-  
-    int n, m, i, j, k;  
-    n = 5;                         // Number of processes  
-    m = 3;                         // Number of resources  
-    int alloc[5][3] = {{0, 1, 0},  // P0 // Allocation Matrix  
-                       {2, 0, 0},  // P1  
-                       {3, 0, 2},  // P2  
-                       {2, 1, 1},  // P3  
-                       {0, 0, 2}}; // P4  
-  
-    int max[5][3] = {{7, 5, 3},  // P0 // MAX Matrix  
-                     {3, 2, 2},  // P1  
-                     {9, 0, 2},  // P2  
-                     {2, 2, 2},  // P3  
-                     {4, 3, 3}}; // P4  
-  
-    int avail[3] = {3, 3, 2}; // Available Resources  
-  
-    int f[n], ans[n], ind = 0;  
-    for (k = 0; k < n; k++)  
-    {  
-        f[k] = 0;  
-    }  
-    int need[n][m];  
-    for (i = 0; i < n; i++)  
-    {  
-        for (j = 0; j < m; j++)  
-            need[i][j] = max[i][j] - alloc[i][j];  
-    }  
-    int y = 0;  
-    for (k = 0; k < 5; k++)  
-    {  
-        for (i = 0; i < n; i++)  
-        {  
-            if (f[i] == 0)  
-            {  
-                int flag = 0;  
-                for (j = 0; j < m; j++)  
-                {  
-                    if (need[i][j] > avail[j])  
-                    {  
-                        flag = 1;  
-                        break;  
-                    }  
-                }  
-                if (flag == 0)  
-                {  
-                    ans[ind++] = i;  
-                    for (y = 0; y < m; y++)  
-                        avail[y] += alloc[i][y];  
-                    f[i] = 1;  
-                }  
-            }  
-        }  
-    }  
-    int flag = 1;  
-    for (int i = 0; i < n; i++)  
-    {  
-        if (f[i] == 0)  
-        {  
-            flag = 0;  
-            printf("The following system is not safe");  
-            break;  
-        }  
-    }  
-    if (flag == 1)  
-    {  
-        printf("Following is the SAFE Sequence\n");  
-        for (i = 0; i < n - 1; i++)  
-            printf(" P%d ->", ans[i]);  
-        printf(" P%d", ans[n - 1]);  
-    }  
-    return (0);  
+#include <stdio.h>
+
+int n, m; // Number of processes and resources
+
+// Function to display the matrix
+void display(int mat[][m], int rows, int cols) 
+{
+    for (int i = 0; i < rows; i++) 
+    {
+        printf("\n");
+        for (int j = 0; j < cols; j++) 
+        {
+            printf("%d ", mat[i][j]);
+        }
+    }
 }
 
+int main() 
+{
+    printf("Enter the number of processes: ");
+    scanf("%d", &n);
+    printf("Enter the number of resources: ");
+    scanf("%d", &m);
+
+    int alloc[n][m], max[n][m], need[n][m];
+    int available[m];
+
+    // Input Allocation Matrix
+    printf("\nEnter Allocation Matrix (%d x %d):\n", n, m);
+    for (int i = 0; i < n; i++) 
+    {
+        for (int j = 0; j < m; j++) 
+        {
+            printf("alloc[%d][%d]: ", i + 1, j + 1);
+            scanf("%d", &alloc[i][j]);
+        }
+    }
+
+    // Input Max Matrix
+    printf("\nEnter Max Matrix (%d x %d):\n", n, m);
+    for (int i = 0; i < n; i++) 
+    {
+        for (int j = 0; j < m; j++) 
+        {
+            printf("max[%d][%d]: ", i + 1, j + 1);
+            scanf("%d", &max[i][j]);
+        }
+    }
+
+    // Input Available Resources
+    printf("\nEnter Available Resources Array (size %d):\n", m);
+    for (int i = 0; i < m; i++) 
+    {
+        printf("available[%d]: ", i + 1);
+        scanf("%d", &available[i]);
+    }
+
+    // Display Matrices
+    printf("\nDisplaying Allocation Matrix:");
+    display(alloc, n, m);
+    printf("\n\nDisplaying Max Matrix:");
+    display(max, n, m);
+    printf("\n\nDisplaying Available Array:\n");
+    for (int i = 0; i < m; i++) 
+    {
+        printf("%d ", available[i]);
+    }
+
+    // Step 1: Calculate Need Matrix
+    for (int i = 0; i < n; i++) 
+    {
+        for (int j = 0; j < m; j++) 
+        {
+            need[i][j] = max[i][j] - alloc[i][j];
+        }
+    }
+    printf("\n\nDisplaying Need Matrix:");
+    display(need, n, m);
+
+    // Step 2: Initialize Flag Array
+    int flag[n];
+    for (int i = 0; i < n; i++) 
+    {
+        flag[i] = 0;
+    }
+
+    // Step 3: Finding Safe Sequence
+    int safe_seq[n], ct = 0;
+    int i, j, k, f;
+    for (k = 0; k < n; k++) 
+    {
+        for (i = 0; i < n; i++) 
+        {
+            f = 1;
+            if (flag[i] == 1) 
+            {
+                continue;
+            }
+            for (j = 0; j < m; j++) 
+            {
+                if (available[j] < need[i][j]) 
+                {
+                    f = 0;
+                    break;
+                }
+            }
+            if (f == 1) 
+            {
+                flag[i] = 1;
+                break;
+            }
+        }
+        if (i == n) 
+        {
+            continue;
+        }
+        if (flag[i] == 1) 
+        {
+            safe_seq[ct] = i;
+            ct++;
+            for (j = 0; j < m; j++) 
+            {
+                available[j] += alloc[i][j];
+            }
+        }
+    }
+
+    // Checking if a Safe Sequence is Present
+    f = 0;
+    for (i = 0; i < n; i++) 
+    {
+        if (flag[i] == 0) 
+        {
+            printf("\n\nSafe Sequence Not Present!");
+            f = 1;
+            break;
+        }
+    }
+
+    // Printing Safe Sequence if Present
+    if (f == 0) 
+    {
+        printf("\n\nSafe Sequence: ");
+        for (i = 0; i < n; i++) 
+        {
+            printf("P%d ", safe_seq[i] + 1);
+            if (i < n - 1) 
+                printf("-> ");
+        }
+    }
+    return 0;
+}
