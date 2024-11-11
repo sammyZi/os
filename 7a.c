@@ -14,7 +14,9 @@ void count_characters_words_lines(char *str, int *char_count, int *word_count, i
     *char_count = *word_count = *line_count = 0;
     int in_word = 0;
     for (int i = 0; str[i] != '\0'; i++) {
-        (*char_count)++;
+        if (str[i] != '\n' && str[i] != '\0') { // Exclude null terminator from character count
+            (*char_count)++;
+        }
         if (str[i] == '\n') {
             (*line_count)++;
         }
@@ -26,6 +28,7 @@ void count_characters_words_lines(char *str, int *char_count, int *word_count, i
         }
     }
 }
+
 
 int main() {
     // Creating named pipes (FIFO)
